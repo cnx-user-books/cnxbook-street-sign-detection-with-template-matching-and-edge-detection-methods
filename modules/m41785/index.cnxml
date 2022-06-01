@@ -1,0 +1,16 @@
+<document xmlns="http://cnx.rice.edu/cnxml">
+  <title>Conclusions</title>
+<metadata xmlns:md="http://cnx.rice.edu/mdml">
+  <md:content-id>m41785</md:content-id>
+  <md:title>Conclusions</md:title>
+  <md:abstract/>
+  <md:uuid>b0a9a42c-0af3-4a16-9496-bf3c4b159a7f</md:uuid>
+</metadata>
+
+<content>
+    <section id="id1168895337426">
+      <title>Combining methods gives best performance</title>
+      <para id="id1168891935560">Image processing techniques can be used to not only detect street signs but also read data from them.  Using MATLAB algorithms, techniques such as template matching, edge detection, and combinations of the two can be used to analyze an image for street signs, detecting the presence of the sign and position of it to a reasonable accuracy.  Through our group’s work, we found that combining template matching and edge detection provided the best approach that can be adapted with clever algorithms to detect a variety of signs.  Though work remains, these approaches will prove useful to the Rice Robotics Team in continuing their work on an unmanned vehicle. </para>
+    </section>
+  </content>
+</document>

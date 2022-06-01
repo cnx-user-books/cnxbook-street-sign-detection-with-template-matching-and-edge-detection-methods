@@ -1,0 +1,16 @@
+<document xmlns="http://cnx.rice.edu/cnxml">
+  <title>Introduction</title>
+<metadata xmlns:md="http://cnx.rice.edu/mdml">
+  <md:content-id>m41774</md:content-id>
+  <md:title>Introduction</md:title>
+  <md:abstract/>
+  <md:uuid>5e176cc5-2253-432c-a191-efa6c44cbbbd</md:uuid>
+</metadata>
+
+<content>
+    <section id="id1170870459801">
+      <title>Motovation</title>
+      <para id="id1170874077931">The Rice Robotics Club (RRC) is attempting to build an autonomous robot to maneuver around the Rice beer bike track and eventually all of campus.  To achieve this, the robot will need to be able to identify and follow traffic laws.  To help the Robotic Club with their task, we explored street sign detection methods using two common image processing techniques: template matching and edge detection.  Ideally, exploration of these methods would allow the creation of an image processing algorithm that can identify relevant signs as well as note other information such as position, distance, and content for each sign observed.</para><para id="eip-270">This module explains and compares three methods to detect signs: one based purely on template matching, one based purely on edge detection, and another that uses both template matching and edge detection.  Most of our work in this study concentrated on stop signs and speed limit signs, those being the signs most commonly found on campus, but we also explored one way signs and do not enter signs to a lesser extent.</para>
+    </section>
+  </content>
+</document>

@@ -1,0 +1,163 @@
+<document xmlns="http://cnx.rice.edu/cnxml">
+  <title>Approaches</title>
+<metadata xmlns:md="http://cnx.rice.edu/mdml">
+  <md:content-id>m41788</md:content-id>
+  <md:title>Approaches</md:title>
+  <md:abstract/>
+  <md:uuid>4549c9d5-49e3-4bca-9d93-1137df92d1ab</md:uuid>
+</metadata>
+
+<content>
+    <section id="id1170214656929">
+      <title>Approach I: Template Matching Only</title>
+      <para id="id1170214956688">In the template matching algorithm, a sign template is correlated with a larger image that may or may not include the sign.  We used the MATLAB function <emphasis effect="bold">normxcorr2</emphasis> to correlate the template and image.  Though template matching works perfectly when a smaller reference image is directly cropped from the larger image, in practice we would not have the cropped image.  Thus, our first task was to choose a general reference image.  After finding a good reference image, our second task was to write a program that would find the correlation for many image:reference ratios which would then allow us to estimate the size of the sign within the larger image.  This is necessary because we don't know the size of the stop sign in the larger image and if the template is the wrong size there will not be a high correlation even if the template is in the image.</para>
+      <para id="id1170218266618">We implemented the template matching algorithm on stop signs first.  The first template tried for stop signs was stop signs with a black background (fig. 1).  This template yielded results of ~75% stop signs detected.  We saw improved results, ~85% signs detected, if instead of using a template with the entire sign, we used a template that was a rectangular red box with the word “stop” (fig. 2).  This is because the area around the edge of the stop sign in the image was significantly different than the template with a purely black background leading to lower correlation values.  </para>
+      <para id="eip-692"><media id="fig1" alt="picture of a stop sign with a black background">
+       
+  <image mime-type="image/jpeg" src="../../media/fig1.jpg"/>
+         
+</media></para><para id="eip-259"><media id="fig2" alt="picture of the STOP of a stop sign">
+       
+  <image mime-type="image/jpeg" src="../../media/fig2.jpg"/>
+         
+</media></para><para id="id1170222043902">When a full speed limit sign with a single speed was used for the general template, we lost accuracy because the difference in the speed limits themselves (i.e. 55 vs. 40) reduced the correlation.  The top half of a speed limit sign (fig. 3) proved to be a much better template and we were able to detect a majority of speed limit signs (~85%).  We were also able to successfully implement our code on do not enter and one way signs.</para>
+      <para id="eip-628"><media id="fig3" alt="picture of the top half of a speed limit sign">
+       
+  <image mime-type="image/jpeg" src="../../media/fig3.jpg"/>
+         
+</media></para><para id="id1170207944390">If a template is a different size than the sign within the larger image, the sign will not be detected.  To solve this problem we calculated the correlation of the template and image for many different template/image ratios.  We scaled down the image as oppose to scaling up the template to cut down on computation time.  When a sign is present and when the template and image have the correct ratio, there is a spike in the correlation values (fig. 4).  When no sign that matches the template is present, there is not spike in correlation (fig. 5).  By looking at the scaling of highest correlation we are able to estimate the size of the sign and by looking at the point of highest correlation for this ratio we are able to determine the location of the sign.</para><para id="eip-763"><media id="fig4" alt="graph of correlation as size is scaled, there is a sharp peak in the correlation when the reference image is the same size as the stop sign in the image">
+       
+  <image mime-type="image/jpeg" src="../../media/fig4.jpg"/>
+         
+</media></para><para id="eip-154"><media id="fig5" alt="graph of correlation as the image is scaled, there is no peak and the stop sign was not found">
+       
+  <image mime-type="image/jpeg" src="../../media/fig5.jpg"/>
+         
+</media></para><table id="eip-494" summary="table of success ratios for method 1 for finding stop signs in pictures with and without stop signs">
+<tgroup cols="3"><tbody>
+  <row>
+    <entry>Sign</entry>
+    <entry>Reference</entry>
+    <entry>Percentage Above Threshold</entry>
+  </row>
+  <row>
+    <entry>Stop</entry>
+    <entry>Stop</entry>
+    <entry>90%</entry>
+  </row>
+  <row>
+    <entry>Speed Limit</entry>
+    <entry>Stop</entry>
+    <entry>0%</entry>
+  </row>
+  <row>
+    <entry>Do Not Enter</entry>
+    <entry>Stop</entry>
+    <entry>33%</entry>
+  </row>
+  <row>
+    <entry>One Way</entry>
+    <entry>Stop</entry>
+    <entry>66%</entry>
+  </row>
+</tbody>
+
+
+
+
+
+</tgroup>
+</table>
+    </section>
+    <section id="id1170195210633">
+      <title>Approach II: Edge Detection Only</title>
+      <para id="id1170204555535">In the Edge Detection algorithm, regions of the image are found and then put through another algorithm that determines if they are a part of the sign.  We used the MATLAB function <emphasis effect="bold">edge</emphasis> to find the boundaries of the objects in the image (fig. 6) and then used the MATLAB function <emphasis effect="bold">regionprops</emphasis> to find regions within the image.  </para><para id="eip-690"><media id="fig6" alt="image of a stop sign that has been edge detected, outlines of objects show in white on black background">
+       
+  <image mime-type="image/jpeg" src="../../media/fig6.jpg"/>
+         
+</media></para><para id="eip-974">We first tried to find the border of the sign.  The outside edge of the sign is a region most of the time, so this was a possibility.  However, there is not a good way of determining which region was the sign.  A first guess was to choose the biggest region, however this did not always work as the sign was not always the biggest object in the picture.  We then noticed that the O of stop showed up as two regions, the inner ring and the outer ring.  Since these two regions have approximately the same center (fig. 7), it is possible to find regions that have centers close together and then analyze them to see if they are the sign in question.  For example, if the point is on a stop sign, then the point, the point a bit above it, and the point a bit below it will all be red.  If the point is on a do not enter sign, then the point will be white and the points above and below will be red.  </para><para id="eip-480"><media id="fig7" alt="Both the inner and outer ring of the 'O' in a stop sign have the same center">
+       
+  <image mime-type="image/jpeg" src="../../media/fig7.jpg"/>
+         
+</media></para><para id="eip-604">The points above and below were chosen by using the height of the region found.  By choosing points the height of the region above and below the identified center, the points are on the outside of the letter.  This tells the background of the sign itself.  </para><para id="eip-937">This method of finding signs is not the most accurate.  It can be fooled by other signs.  For example, a sign for a business that had an O on a red background would be considered a stop sign by this algorithm.  This could be helped by checking more points.  Points immediately around the center should also be red and some points in between the center and the currently checked outer points should be white.  This would improve the accuracy, but it could still be fooled.  This algorithm also works best for signs with color.  Signs with white backgrounds such as speed limit signs are hard to find because values that are defined as ‘white’ cover a large range of pale colors and therefore many things not signs are identified as signs.  </para><para id="eip-597">Despite these drawbacks, this code is advantageous because it does not require large convolutions like the first method. This means that the method is much faster. To find the sign of the correct size with the first approach, it takes about 30 seconds. To find the sign including the size with the second approach, it takes about .5-1 second.</para><table id="eip-643" summary="table of success ratios for method 2 for finding stop signs in pictures with and without stop signs">
+<tgroup cols="3"><tbody>
+  <row>
+    <entry>Sign</entry>
+    <entry>Reference</entry>
+    <entry>Percentage Above Threshold</entry>
+  </row>
+  <row>
+    <entry>Stop</entry>
+    <entry>Stop</entry>
+    <entry>95%</entry>
+  </row>
+  <row>
+    <entry>Speed Limit</entry>
+    <entry>Stop</entry>
+    <entry>0%</entry>
+  </row>
+  <row>
+    <entry>Do Not Enter</entry>
+    <entry>Stop</entry>
+    <entry>15%</entry>
+  </row>
+  <row>
+    <entry>One Way</entry>
+    <entry>Stop</entry>
+    <entry>0%</entry>
+  </row>
+</tbody>
+
+
+
+
+
+</tgroup>
+</table>
+    </section>
+    <section id="id1170200633523">
+      <title>Approach III: Template Matching and Edge Detection</title>
+      <para id="id1170212104641">For our final algorithm we used both template matching and edge detection in an attempt to combine the positive aspects of the two approaches.  The combined algorithm first utilizes edge detection to isolate regions within the image, throwing out all regions of a size below a certain threshold in order not to waste time with extraneous convolutions.  Once the significant regions, usually numbering between twenty and one hundred, have been identified, each is re-sized to a standard small template size and compared to each image in the template library.  Regions with high correlations with a template image are assumed to be the part of the sign that template was created from.</para><para id="eip-451">This combined algorithm performed quite well, although it was not error-free.  As was the case with pure template matching, attempting to match pictures of entire signs was prone to error because the background of any given sign can vary, occasionally leading to quite low correlations.  However, we discovered that using this algorithm to match only specific elements of a sign, such as the “S”, “T”, “O”, and “P” in stop (fig. 8), was much more reliable, as the conditions for such sub-sign features are much more consistent than for the overall sign.  In addition, searching for individual sign features and not just the sign itself means that partially obscured signs that would be beyond our first template matching algorithm would present no problems for this modified one.  Our template library was expanded so as to contain a number of sub-sign features for both stop signs and speed limit signs, as both of these signs contain changing characteristics (background for the stop sign, speed limit for the speed limit sign) that can thwart conventional template matching.  Again, we found that matching individual letters yielded a high success rate (fig. 9).  Our basic algorithm was also fairly successful in identifying one way signs and do not enter signs, even though no sub-feature library was created for these signs and only the sign itself was used as a template.</para><para id="eip-221"><media id="fig8" alt="pictures of individual letter 'S' 'T' 'O' 'P' and stop signs with white and black backgrounds">
+       
+  <image mime-type="image/jpeg" src="../../media/fig8.jpg"/>
+         
+</media></para><para id="eip-994"><media id="fig9" alt="graph showing letters have higher correlation values than signs">
+       
+  <image mime-type="image/jpeg" src="../../media/fig9.jpg"/>
+         
+</media></para><para id="eip-995">This algorithm showed significant success in combining the positive aspects of both tablet matching and edge detection.  In comparison to pure template matching, this method performs correlation calculations on much smaller images and size matching is a non-issue because all regions are re-sized to match the templates.  In comparison to pure edge detection, this method is less prone to false positives and can be much more easily expanded to detect new signs simply by adding to the template library.  Overall, the combination of template matching and edge detection yields a more robust, flexible, and reliable method of sign detection than either algorithm used alone.</para><table id="eip-410" summary="table of success rates for combination method">
+<tgroup cols="3"><tbody>
+  <row>
+    <entry>Sign</entry>
+    <entry>Reference</entry>
+    <entry>Percentage Above Threshold</entry>
+  </row>
+  <row>
+    <entry>Stop</entry>
+    <entry>Stop</entry>
+    <entry>95%</entry>
+  </row>
+  <row>
+    <entry>Speed Limit</entry>
+    <entry>Stop</entry>
+    <entry>15%</entry>
+  </row>
+  <row>
+    <entry>Do Not Enter</entry>
+    <entry>Stop</entry>
+    <entry>66%</entry>
+  </row>
+  <row>
+    <entry>One Way</entry>
+    <entry>Stop</entry>
+    <entry>33%</entry>
+  </row>
+</tbody>
+
+
+
+</tgroup>
+</table>
+    </section>
+  </content>
+</document>

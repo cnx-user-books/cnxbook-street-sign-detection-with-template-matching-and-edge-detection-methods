@@ -1,0 +1,39 @@
+<document xmlns="http://cnx.rice.edu/cnxml">
+  <title>Background</title>
+<metadata xmlns:md="http://cnx.rice.edu/mdml">
+  <md:content-id>m41781</md:content-id>
+  <md:title>Background</md:title>
+  <md:abstract/>
+  <md:uuid>7a59beaf-fc8e-4a8f-82ed-cd82af4c9abc</md:uuid>
+</metadata>
+<featured-links>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit below.
+       Changes to the links section in the source will not be saved. -->
+    <link-group type="supplemental">
+      <link url="http://www.cs.umd.edu/~djacobs/CMSC426/Convolution.pdf" strength="3">Correlation and Convolution</link>
+      <link url="http://www.mathworks.com/help/toolbox/images/ref/normxcorr2.html" strength="3">Normxcorr2</link>
+      <link url="http://en.wikipedia.org/wiki/Sobel_operator" strength="3">Sobel Operator</link>
+    </link-group>
+  <!-- WARNING! The 'featured-links' section is read only. Do not edit above.
+       Changes to the links section in the source will not be saved. -->
+</featured-links>
+<content>
+    <section id="id8791102">
+      <title>Template Matching</title>
+      <para id="id1167469097302">Template matching involves comparing regions of an image to a template, using correlation algorithms to detect regions that are similar.  Correlation is similar to convolution but without flipping one of the signals.  For use in image processing, we must normalize the signals to account for variations of intensity in the image matrices, one for each color matrix (red, green, and blue).  Using the MATLAB function <emphasis effect="bold">normxcorr2</emphasis>, we are able to take a normalized 2-D cross-correlation of two images, with the regions most similar to the template in the picture returning the highest correlation values. </para><para id="eip-484">Examining a cross-correlation formula we see the similarity to convolution except neither image is flipped:</para><para id="eip-476"><media id="crossconveqn" alt="equation for cross convolution">
+	   
+  <image mime-type="image/jpeg" src="../../media/crossconvolution.jpg"/>
+		 
+</media></para><para id="eip-433">In order to expand to two dimensions and normalize the correlation, we must use linear algebra.  Since MATLAB allows us to convert images to 2-D matrices, three for a color image (the RGB values at each x,y coordinate pair), we can run a similar formula but use vectors instead of points.  The normalization factor on the bottom scales the values so they do not vary based on the high intensities of individual colors in parts of the image.  Without this correction, a bright sky would always have high correlation with the image just because it is bright.</para><para id="eip-376"><media id="normxcorr" alt="equation for matlab normxcorr">
+       
+  <image mime-type="image/jpeg" src="../../media/matlab_normxcorr.jpg"/>
+         
+</media></para><para id="eip-96">Thus, using a stop sign template we can attempt to match it with an image and extract the location of highest correlation.  At this point, we can either check it against a threshold value to determine if it matches, or do further analysis on regions of the image.</para>
+    </section><section id="eip-571"><title>Edge Detection</title><para id="eip-570">Edge detection involves analyzing changes in intensity to determine the edges in an image, and then further analysis can be performed on certain bounded regions of the image.  Given an colored image, MATLAB has the capability to convert it to a 2-D grayscale image using <emphasis effect="bold">rgb2gray</emphasis>.  Then, we can capitalize on the changes in intensity to detect edges.  The MATLAB algorithm we chose to accomplish this is the Sobel method, which approximated the gradient of the image using a convolution with the following matrices.
+</para><para id="eip-634"><media id="edge" alt="equation for the edge detection algorithm">
+       
+  <image mime-type="image/jpeg" src="../../media/edge.jpg"/>
+         
+</media></para><para id="eip-630">The regions with the highest changes in intensity are the most likely to be edges in an image.  Given the probable edges, we can use the function <emphasis effect="bold">bwareaopen</emphasis> to remove any bounded regions that are too small to be of use in our image processing.  Left with only large boundaries, we can now test each one for various features such as color, shape, area, etc. to determine if it is a street sign.</para></section>
+  </content>
+</document>

@@ -1,0 +1,312 @@
+<document xmlns="http://cnx.rice.edu/cnxml">
+
+<title>Code</title>
+<metadata xmlns:md="http://cnx.rice.edu/mdml">
+  <md:content-id>m41793</md:content-id>
+  <md:title>Code</md:title>
+  <md:abstract/>
+  <md:uuid>071aae4b-1b9d-48c9-b510-f73150f8d26f</md:uuid>
+</metadata>
+
+<content>
+  <section id="eip-38"><title>Apporach 1</title><code id="eip-607" display="block">function sign_detector_basic
+
+color = [85 255 0]./255;
+
+
+%%% READ IN WHICHEVER REFERENCES YOU WOULD LIKE TO USE
+stop_gen_ref_2 = double(imread('ref_stop.png')); 
+size_gen_ref = size(stop_gen_ref_2);
+
+
+
+%%% INPUT IMAGE TO BE DETECTED
+file_image = strcat('speed_limit6.jpg');
+sign = double(imread(file_image));
+size_sign = size(sign);
+
+%%% c is the ratio of the image edges.  In order to avoid distorting our
+%%% image we want this ratio to stay constant as we resize the image
+c = size_sign(2)/size_sign(1);
+
+%%% This logic determines which side is smaller.  The first image:reference
+%%% ratio we try is 2:1 where the shortest side of the image is twice the
+%%% size of the reference.
+n1 = (size_gen_ref(2)/size_sign(2));
+n2 = size_gen_ref(1)/size_sign(1);
+n = max(n1, n2);
+
+
+max_chart = [];
+max_val_plot = 0;
+
+%%% This loop finds the correlation for image:ratio sizes of n through 1
+for i = n:.01:1
+    
+    %Resize Image
+    yi = size_sign(1)*i;
+    xi = c*yi;
+    sign_res = imresize(sign, [yi xi]);
+    
+    %Call finder to determine where the point of highest correlation is and
+    %update the vector max_chart which stores the maximum value for each
+    %iteration
+    [max_val, locx, locy] = finder(sign_res, stop_gen_ref_2);
+    max_chart = [max_chart; i max_val];
+    
+    %If the new max value is higher, record the sign, location, and value
+    %of the correlation for this ratio.
+    if max_val &gt; max_val_plot
+        max_val_plot = max_val;
+        locx_plot = locx;
+        locy_plot = locy;
+        sign_plot = sign_res;
+        
+    end
+    
+    
+end
+
+%Plot a figure that shows how the correlation varies as the image:reference
+%ratio varies
+figure
+plot(max_chart(:,1), max_chart(:,2), 'color', color, 'LineWidth', 5);
+sign_title = strcat('Correlation as Image:Reference Ratio Varies');
+title(sign_title)
+axis([n, 1, 0 ,1])
+
+%Plot a figure that shows where the program finds the sign at the
+%image:reference ratio that gives the maximum correlation
+figure
+imshow(uint8(sign_plot));
+hold on
+plot(locy_plot, locx_plot, 'bx', 'MarkerSize', 100, 'LineWidth', 3)
+title(strcat(file_image,' ', num2str(locx),' , ', num2str(locy)));
+
+
+
+end
+
+
+%This funciton determines the maximum value of correlation and location of
+%this maximum value for an inputted imag and reference.
+function [max_val, locx, locy] = finder(stop_image, reference)
+
+%Find the sizes of the matrices
+size_image = size(stop_image);
+size_ref = size(reference);
+
+%Grab first two columns
+size_image = size_image(1:2);
+size_ref = size_ref(1:2);
+%Calculate amount for zero-padding
+x = size_image + size_ref - [1 1];
+
+
+correlation = zeros(x(1), x(2));
+for k = 1:3
+    %Grab values for one color
+    stop_image_t = stop_image(:,:,k);
+    reference_t = reference(:,:,k);
+    %Calculate and add the correlations for each color
+    correlation_int = normxcorr2(reference_t, stop_image_t);  
+    correlation = correlation + correlation_int;
+end
+
+correlation = correlation./3;
+
+%Determine the max value
+max_val = max(max(correlation));
+%The correlation matrix is not the same size of the image becuase the size
+%of a signal resulting from a convolution has a size equal to the sum of
+%the sizes of the two images that were convolved.  Hence, need to determine
+%which points in the matrix correlation refer to which points in the image.
+[x,y] = size(correlation);
+map_refined = correlation(ceil(size_ref(1)/2):x - ceil(size_ref(1)/2), ceil(size_ref(2)/2):y - ceil(size_ref(2)/2));
+
+%Find the points of maximum correlation
+[locx, locy] = find(map_refined == max_val);
+
+
+end</code></section><section id="eip-965"><title>Approach 2</title><code id="eip-81" display="block">function stopfind(stopcolor,name)
+tic
+
+stopcolor = imread(stopcolor);              % import the picture
+stopcolor = imresize(stopcolor,[500,NaN]);  % resize the picture
+stop = rgb2gray(stopcolor);                 % make it grayscale
+
+stop = edge(stop);                          
+% edge detector to get rid of extraneous elements and convert to 1's and 0's
+
+stop = bwareaopen(stop,30);                 % get rid of all blobs too small to be important
+
+bounds = regionprops(stop, 'boundingbox');	% for all regions, find their bounds
+centers = regionprops(stop, 'centroid');    % for all regions, find their centre of mass
+areas = regionprops(stop, 'area');
+
+numBlobs = length(bounds);                  % find the number of retions
+
+regions = zeros(numBlobs,4);                % create a matrix to hold all the region data
+height = zeros(numBlobs,1);
+centerpts = zeros(numBlobs,2);
+area = zeros(numBlobs,1);
+for n = 1:numBlobs                          %
+    regions(n,:) = bounds(n).BoundingBox;   % populate the matrix for each region
+    height(n) = regions(n,4);
+    centerpts(n,:) = centers(n).Centroid;   % populate the center matrix for each blob
+    area(n,:) = areas(n).Area;
+end                                         %
+
+numsamecenters=1;
+for i = 1:numBlobs
+    for j = i+1:numBlobs
+            if(abs(centerpts(i,1)-centerpts(j,1))+abs(centerpts(i,2)-centerpts(j,2)) 10)
+            %add a less than symbol in front of the 10 [cnx would not let me import the actual line]
+            samecenters(numsamecenters) = i;
+            numsamecenters=numsamecenters+1;
+        end
+    end
+end
+
+figure
+axis ij
+imshow(stopcolor)
+hold on
+title(name);
+for n = 1:numsamecenters-1
+    samecenter = floor(centerpts(samecenters(n),:));
+    abovept = [samecenter(1),floor(samecenter(2)-height(samecenters(n)))];
+    belowpt = [samecenter(1),floor(samecenter(2)+height(samecenters(n)))];
+    rightpt = [samecenter(1)-floor(regions(samecenters(n),3)/3),samecenter(2)];
+    left_pt = [samecenter(1)+floor(regions(samecenters(n),3)/3),samecenter(2)];
+    if checkColor2(abovept(1),abovept(2),stopcolor) 
+        if checkColor2(belowpt(1),belowpt(2),stopcolor)
+            plot(samecenter(1)-regions(samecenters(n),3)/2,samecenter(2),'go',...
+                'markersize',4.5*regions(samecenters(n),3))
+        end
+    end
+    
+end
+
+hold off
+
+toc
+end</code></section><section id="eip-791"><title>Approach 3</title><code id="eip-225" display="block">function findAll
+
+% Import the Templates
+%--------------------------------------------------------------------------
+S = imread('Templates/S.jpg');                        % S template
+T = imread('Templates/T.jpg');                        % T template
+O = imread('Templates/O.jpg');                        % O template
+P = imread('Templates/P.jpg');                        % P template
+STOP_W = imread('Templates/STOP_W.jpg');              % stop sign with white background
+STOP_B = imread('Templates/STOP_B.jpg');              % stop sign with black background
+SPEED = imread('Templates/SPEED.jpg');                % speed limit sign
+ONEWAY = imread('Templates/ONEWAY.jpg');              % one way sign
+DNE = imread('Templates/DNE.jpg');                    % do not enter sign
+%--------------------------------------------------------------------------
+
+for k = 1:3
+    sign = imread(strcat('Do_Not_Enter/',num2str(k),'.jpg'));   % import the picture
+    
+    sign1 = rgb2gray(sign);                             % make it grayscale
+    sign1 = edge(sign1);                                % edge detector to get rid of extraneous elements and convert to 1's and 0's
+    sign1 = bwareaopen(sign1,30);                       % get rid of all blobs too small to be important
+    bounds = regionprops(sign1, 'boundingbox');         % for all regions, find their bounds
+    numBlobs = size(bounds);                            % find the number of regions
+    numBlobs = numBlobs(1);                             % make that number a handy variable
+    
+    regions = zeros(numBlobs,4);                % create a matrix to hold all the region data
+    for n = 1:numBlobs                          %
+        regions(n,:) = bounds(n).BoundingBox;   % populate the matrix for each region
+    end  
+
+    checkS = zeros(1,numBlobs);                   % matrix holding the correlations of each blob with the S template
+    checkT = zeros(1,numBlobs);                   % ditto for the T template
+    checkO = zeros(1,numBlobs);                   % ditto for the O template
+    checkP = zeros(1,numBlobs);                   % ditto for the P template
+    checkSTOP_W = zeros(1,numBlobs);              % ditto for the white stop sign template
+    checkSTOP_B = zeros(1,numBlobs);              % ditto for the black stop sign template
+    checkSPEED = zeros(1,numBlobs);               % ditto for the speed limit template
+    checkONEWAY = zeros(1,numBlobs);              % ditto for the one way template
+    checkDNE = zeros(1,numBlobs);                 % ditto for the do not enter template
+
+    for n = 1:numBlobs
+        cropped = imcrop(sign, regions(n,:));       % choose one of the regions and crop it
+        cropped = imresize(cropped, [57 35]);       % resize the image for correlation testing
+    
+        checkR = corr2(cropped(:,:,1), S(:,:,1));       % check red correlation between cropped image and S template
+        checkG = corr2(cropped(:,:,2), S(:,:,2));       % check green correlation between cropped image and S template
+        checkB = corr2(cropped(:,:,3), S(:,:,3));       % check blue correlation between cropped image and S template
+        checkS(1,n) = (checkR + checkG + checkB)/3;     % sum the correlations
+    
+        checkR = corr2(cropped(:,:,1), T(:,:,1));       % red for T template
+        checkG = corr2(cropped(:,:,2), T(:,:,2));       % green for T template
+        checkB = corr2(cropped(:,:,3), T(:,:,3));       % blue for T template
+        checkT(1,n) = (checkR + checkG + checkB)/3;     % sum the correlations
+    
+        checkR = corr2(cropped(:,:,1), O(:,:,1));       % red for O template
+        checkG = corr2(cropped(:,:,2), O(:,:,2));       % green for O template
+        checkB = corr2(cropped(:,:,3), O(:,:,3));       % blue for O template
+        checkO(1,n) = (checkR + checkG + checkB)/3;     % sum the correlations
+    
+        checkR = corr2(cropped(:,:,1), P(:,:,1));       % red for P template
+        checkG = corr2(cropped(:,:,2), P(:,:,2));       % green for P template
+        checkB = corr2(cropped(:,:,3), P(:,:,3));       % blue for S template
+        checkP(1,n) = (checkR + checkG + checkB)/3;     % sum the correlations
+    
+        checkR = corr2(cropped(:,:,1), STOP_W(:,:,1));        % red for white stop sign template
+        checkG = corr2(cropped(:,:,2), STOP_W(:,:,2));        % green for white stop sign template
+        checkB = corr2(cropped(:,:,3), STOP_W(:,:,3));        % blue for white stop sign template
+        checkSTOP_W(1,n) = (checkR + checkG + checkB)/3;      % sum the correlations
+        
+        checkR = corr2(cropped(:,:,1), STOP_B(:,:,1));        % red for black stop sign template
+        checkG = corr2(cropped(:,:,2), STOP_B(:,:,2));        % green for black stop sign template
+        checkB = corr2(cropped(:,:,3), STOP_B(:,:,3));        % blue for black stop sign template
+        checkSTOP_B(1,n) = (checkR + checkG + checkB)/3;      % sum the correlations
+        
+        checkR = corr2(cropped(:,:,1), SPEED(:,:,1));       % red for speed limit template
+        checkG = corr2(cropped(:,:,2), SPEED(:,:,2));       % green for speed limlit template
+        checkB = corr2(cropped(:,:,3), SPEED(:,:,3));       % blue for speed limit template
+        checkSPEED(1,n) = (checkR + checkG + checkB)/3;     % sum the correlations
+        
+        checkR = corr2(cropped(:,:,1), ONEWAY(:,:,1));       % red for one way template
+        checkG = corr2(cropped(:,:,2), ONEWAY(:,:,2));       % green for one way template
+        checkB = corr2(cropped(:,:,3), ONEWAY(:,:,3));       % blue for one way template
+        checkONEWAY(1,n) = (checkR + checkG + checkB)/3;     % sum the correlations
+        
+        checkR = corr2(cropped(:,:,1), DNE(:,:,1));       % red for one way template
+        checkG = corr2(cropped(:,:,2), DNE(:,:,2));       % green for one way template
+        checkB = corr2(cropped(:,:,3), DNE(:,:,3));       % blue for one way template
+        checkDNE(1,n) = (checkR + checkG + checkB)/3;     % sum the correlations
+    end
+
+    % Nice display (uncomment all)
+    %fprintf(strcat(num2str(k),':\n'));
+    %fprintf(strcat('S: ', num2str(max(checkS)), '\n'));
+    %fprintf(strcat('T: ', num2str(max(checkT)), '\n'));
+    %fprintf(strcat('O: ', num2str(max(checkO)), '\n'));
+    %fprintf(strcat('P: ', num2str(max(checkP)), '\n'));
+    %fprintf(strcat('STOP_W: ', num2str(max(checkSTOP_W)), '\n'));
+    %fprintf(strcat('STOP_B: ', num2str(max(checkSTOP_B)), '\n'));
+    %fprintf(strcat('SPEED: ', num2str(max(checkSPEED)), '\n'));
+    %fprintf(strcat('ONEWAY: ', num2str(max(checkONEWAY)), '\n'));
+    %fprintf(strcat('DNE: ', num2str(max(checkDNE)), '\n\n'));
+    
+    % Useful display for copying and pasting into a table (uncomment one line at a time)
+    %fprintf(strcat(num2str(max(checkS)), '\n'));
+    %fprintf(strcat(num2str(max(checkT)), '\n'));
+    %fprintf(strcat(num2str(max(checkO)), '\n'));
+    %fprintf(strcat(num2str(max(checkP)), '\n'));
+    %fprintf(strcat(num2str(max(checkSTOP_W)), '\n'));
+    %fprintf(strcat(num2str(max(checkSTOP_B)), '\n'));
+    %fprintf(strcat(num2str(max(checkSPEED)), '\n'));
+    %fprintf(strcat(num2str(max(checkONEWAY)), '\n'));
+    %fprintf(strcat(num2str(max(checkDNE)), '\n'));
+    
+end
+
+end</code></section>
+</content>
+
+</document>
