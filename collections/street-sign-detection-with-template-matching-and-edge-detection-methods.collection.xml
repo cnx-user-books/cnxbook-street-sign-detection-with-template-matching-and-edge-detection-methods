@@ -1,64 +1,27 @@
-<col:collection xmlns="http://cnx.rice.edu/collxml" xmlns:col="http://cnx.rice.edu/collxml" xmlns:cnxml="http://cnx.rice.edu/cnxml" xml:lang="en">
+<?xml version="1.0"?>
+<col:collection xmlns="http://cnx.rice.edu/collxml" xmlns:col="http://cnx.rice.edu/collxml" xmlns:cnxml="http://cnx.rice.edu/cnxml" xml:lang="en" authors="Patrick Breen ,Kristen Graber ,Lisa Anne Hendricks ,Joseph Vento">
   <metadata xmlns:md="http://cnx.rice.edu/mdml" mdml-version="0.5">
-  <md:content-id>col11387</md:content-id>
-  <md:title>Street Sign Detection With Template Matching and Edge Detection Methods</md:title>
-  
-  
-  <md:license url="http://creativecommons.org/licenses/by/3.0/"/>
-  <md:language>en</md:language>
-
-  
-
-  
-  
-  
-  
-  
-
-  <md:uuid>588a629f-8a57-4c1a-afd1-90f9dd5ac19c</md:uuid>
-<md:slug>street-sign-detection-with-template-matching-and-edge-detection-methods</md:slug>
-</metadata>
-
+    <md:content-id>col11387</md:content-id>
+    <md:title>Street Sign Detection With Template Matching and Edge Detection Methods</md:title>
+    <md:license url="http://creativecommons.org/licenses/by/3.0/"/>
+    <md:language>en</md:language>
+    <md:uuid>588a629f-8a57-4c1a-afd1-90f9dd5ac19c</md:uuid>
+    <md:slug>street-sign-detection-with-template-matching-and-edge-detection-methods</md:slug>
+  </metadata>
   <col:content>
-    
-      <col:module document="m41774"/>
-        
-      
-    
-    
-      <col:module document="m41781">
-        <col:featured-links>
-          
-            <cnxml:link-group type="supplemental">
-              <cnxml:link url="http://en.wikipedia.org/wiki/Sobel_operator">Sobel Operator</cnxml:link>
-              <cnxml:link url="http://www.mathworks.com/help/toolbox/images/ref/normxcorr2.html">Normxcorr2</cnxml:link>
-              <cnxml:link url="http://www.cs.umd.edu/~djacobs/CMSC426/Convolution.pdf">Correlation and Convolution</cnxml:link>
-            </cnxml:link-group>
-          
-        </col:featured-links>
-      </col:module>
-        
-      
-    
-    
-      <col:module document="m41788"/>
-        
-      
-    
-    
-      <col:module document="m41785"/>
-        
-      
-    
-    
-      <col:module document="m41791"/>
-        
-      
-    
-    
-      <col:module document="m41793"/>
-        
-      
-    
+    <col:module document="m41774"/>
+    <col:module document="m41781">
+      <col:featured-links>
+        <cnxml:link-group type="supplemental">
+          <cnxml:link url="http://en.wikipedia.org/wiki/Sobel_operator">Sobel Operator</cnxml:link>
+          <cnxml:link url="http://www.mathworks.com/help/toolbox/images/ref/normxcorr2.html">Normxcorr2</cnxml:link>
+          <cnxml:link url="http://www.cs.umd.edu/~djacobs/CMSC426/Convolution.pdf">Correlation and Convolution</cnxml:link>
+        </cnxml:link-group>
+      </col:featured-links>
+    </col:module>
+    <col:module document="m41788"/>
+    <col:module document="m41785"/>
+    <col:module document="m41791"/>
+    <col:module document="m41793"/>
   </col:content>
 </col:collection>
